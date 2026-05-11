@@ -38,7 +38,7 @@ jobs:
         run: |
           echo "Running HTML structure checks..."
           grep -q "<form>" index.html && echo "Form tag present" || exit 1
-          grep -q "<button>" index.html && echo "Button present" || exit 1
+          grep -q "<button" index.html && echo "Button present" || exit 1
           grep -q "<h1>" index.html && echo "Heading present" || exit 1
 
       - name: Simulate security header check

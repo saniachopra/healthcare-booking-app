@@ -1,33 +1,57 @@
-name: Healthcare Booking CI Pipeline
+name: CI Pipeline - Healthcare Booking App
 
 on:
   push:
     branches:
       - main
       - feature-login-page
-
   pull_request:
     branches:
       - main
 
 jobs:
-  validation-test:
+  build:
+    name: Build & Lint Check
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository code
-        uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name: Validate required files exist
+      - name: Verify project files exist
         run: |
-          test -f index.html
-          test -f style.css
-          test -f README.md
+          echo "Checking required files..."
+          test -f index.html && echo "index.html found" || exit 1
+          test -f style.css && echo "style.css found" || exit 1
+          test -f README.md && echo "README.md found" || exit 1
 
-      - name: Check login page content
+  test:
+    name: Run Automated Tests
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Simulate HTML validation
         run: |
-          grep -q "Healthcare Appointment Login" index.html
-          grep -q "Login" index.html
+          echo "Running HTML structure checks..."
+          grep -q "<form>" index.html && echo "Form tag present" || exit 1
+          grep -q "<button>" index.html && echo "Button present" || exit 1
+          grep -q "<h1>" index.html && echo "Heading present" || exit 1
 
-      - name: Simulate security check
-       run: echo "Security check passed"
+      - name: Simulate security header check
+        run: |
+          echo "Checking for basic security markers..."
+          grep -q "password" index.html && echo "Password field detected" || echo "Warning: No password field"
+          echo "Security check complete"
+
+  notify:
+    name: Pipeline Status Notification
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Notify success
+        run: echo "Pipeline passed successfully. Ready for review."

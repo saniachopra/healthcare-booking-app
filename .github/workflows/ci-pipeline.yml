@@ -1,0 +1,35 @@
+name: Healthcare Booking CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - feature-login-page
+
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validation-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+
+      - name: Validate required files exist
+        run: |
+          test -f index.html
+          test -f style.css
+          test -f README.md
+
+      - name: Check login page content
+        run: |
+          grep -q "Healthcare Appointment Login" index.html
+          grep -q "Login" index.html
+
+      - name: Simulate security check
+        run: |
+          echo "Checking for hardcoded secrets..."
+          ! grep -r "password123\|secret_key\|api_key" .
